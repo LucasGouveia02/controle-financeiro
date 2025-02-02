@@ -1,0 +1,2 @@
+DB_USERNAME_PATH=\credentials\db-controle-gastos\username.txt
+DB_PASSWORD_PATH=\credentials\db-controle-gastos\password.txt
