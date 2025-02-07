@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
 import java.util.List;
 
 @RestController
@@ -18,12 +19,17 @@ public class GastosController {
     private GastosService gastosService;
 
     @PostMapping("/cadastrar")
-    public ResponseEntity<GastosDTO> cadastrarGastos(@RequestBody GastosDTO gastosDTO) {
+    public ResponseEntity<GastosDTO> cadastrarGastos(@RequestBody GastosDTO gastosDTO) throws ParseException {
         return gastosService.cadastrarGastos(gastosDTO);
     }
 
-    @GetMapping("/listar")
-    public ResponseEntity<List<GastosCompletoDTO>> listarGastos() {
-        return gastosService.listarGastos();
+    @GetMapping("/listar/{mesAno}")
+    public ResponseEntity<List<GastosCompletoDTO>> listarGastos(@PathVariable String mesAno) throws ParseException {
+        return gastosService.listarGastos(mesAno);
+    }
+
+    @PutMapping("/atualizar/{id}")
+    public ResponseEntity<GastosDTO> atualizarGastos(@RequestBody GastosDTO gastosDTO, @PathVariable Long id) throws ParseException {
+        return gastosService.atualizarGastos(gastosDTO, id);
     }
 }
