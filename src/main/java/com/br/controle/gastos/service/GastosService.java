@@ -82,4 +82,12 @@ public class GastosService {
         GastosDTO response = new GastosDTO(gastosRepository.save(gastosModel));
         return ResponseEntity.ok(response);
     }
+
+    public ResponseEntity<GastosDTO> listarGastosPorId(Long id) {
+        GastosModel gastosModel = gastosRepository.findById(id).orElseThrow(
+                () -> new RuntimeException("Gastos não encontrado")
+        );
+        GastosDTO response = new GastosDTO(gastosModel);
+        return ResponseEntity.ok(response);
+    }
 }

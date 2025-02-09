@@ -32,4 +32,9 @@ public class GastosController {
     public ResponseEntity<GastosDTO> atualizarGastos(@RequestBody GastosDTO gastosDTO, @PathVariable Long id) throws ParseException {
         return gastosService.atualizarGastos(gastosDTO, id);
     }
+
+    @GetMapping("/listarPorId/{id}")
+    public ResponseEntity<GastosDTO> listarGastosPorId(@PathVariable Long id) {
+        return gastosService.listarGastosPorId(id);
+    }
 }

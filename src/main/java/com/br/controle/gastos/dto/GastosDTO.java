@@ -27,6 +27,6 @@ public class GastosDTO {
         this.descricao = gastosModel.getDescricao();
         this.valor = gastosModel.getValor();
         this.grupoGastosId = gastosModel.getGrupoGastos().getId();
-        this.dataInicio = dateFormat.format(gastosModel.getDataInicio());
+        this.dataInicio = (gastosModel.getDataInicio() != null) ? dateFormat.format(gastosModel.getDataInicio()) : null;
     }
 }
