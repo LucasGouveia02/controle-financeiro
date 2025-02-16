@@ -1,7 +1,7 @@
 package com.br.controle.gastos.service;
 
-import com.br.controle.gastos.dto.GastosCompletoDTO;
-import com.br.controle.gastos.dto.GastosDTO;
+import com.br.controle.gastos.dto.GastosResponseDTO;
+import com.br.controle.gastos.dto.GastosRequestDTO;
 import com.br.controle.gastos.model.GastosModel;
 import com.br.controle.gastos.model.GrupoGastosModel;
 import com.br.controle.gastos.repository.GastosRepository;
@@ -28,81 +28,72 @@ public class GastosService {
     @Autowired
     private GrupoGastosRepository grupoGastosRepository;
 
-    public ResponseEntity<GastosDTO> cadastrarGastos(GastosDTO gastosDTO) throws ParseException {
-        GrupoGastosModel grupoGastosModel = grupoGastosRepository.getReferenceById(gastosDTO.getGrupoGastosId());
+    public ResponseEntity<GastosRequestDTO> cadastrarGastos(GastosRequestDTO gastosRequestDTO) throws ParseException {
+        GrupoGastosModel grupoGastosModel = grupoGastosRepository.getReferenceById(gastosRequestDTO.getGrupoGastosId());
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM");
-        Date dataInicio = dateFormat.parse(gastosDTO.getDataInicio());
-        Date dataFim = new Date();
-        if (gastosDTO.getParcela() != null) {
-            String[] parcelaParts = gastosDTO.getParcela().split("/");
-            int mesesRestantes = Integer.parseInt(parcelaParts[1]) - Integer.parseInt(parcelaParts[0]);
-            dataFim.setMonth(dataFim.getMonth() + mesesRestantes);
-        } else {
-            dataFim = null;
+        Date dataInicio = null;
+        Date dataFim = null;
+        if (gastosRequestDTO.getDataInicio() != null) {
+            dataInicio = dateFormat.parse(gastosRequestDTO.getDataInicio());
         }
-        GastosModel gastosModel = new GastosModel(gastosDTO, grupoGastosModel);
+        if (gastosRequestDTO.getDataFim() != null) {
+            dataFim = dateFormat.parse(gastosRequestDTO.getDataFim());
+        }
+        GastosModel gastosModel = new GastosModel(gastosRequestDTO, grupoGastosModel);
         gastosModel.setDataFim(dataFim);
         gastosModel.setDataInicio(dataInicio);
-        GastosDTO response = new GastosDTO(gastosRepository.save(gastosModel));
+        GastosRequestDTO response = new GastosRequestDTO(gastosRepository.save(gastosModel));
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<List<GastosCompletoDTO>> listarGastos(String mesAno) throws ParseException {
+    public ResponseEntity<List<GastosResponseDTO>> listarGastos(String mesAno) throws ParseException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("MM-yyyy");
         Date dataConsulta = dateFormat.parse(mesAno);
         List<GastosModel> list = gastosRepository.findGastosByMesAno(dataConsulta);
-        List<GastosCompletoDTO> listCompleta = new ArrayList<>();
+        List<GastosResponseDTO> listCompleta = new ArrayList<>();
         for (GastosModel gasto : list) {
-            listCompleta.add(new GastosCompletoDTO(gasto, gasto.getGrupoGastos()));
+            String parcela = calcularParcela(gasto.getDataInicio(), gasto.getDataFim(), dataConsulta);
+            listCompleta.add(new GastosResponseDTO(gasto, gasto.getGrupoGastos(), parcela));
         }
         return ResponseEntity.ok(listCompleta);
 
     }
 
-    public ResponseEntity<GastosDTO> atualizarGastos(GastosDTO gastosDTO, Long id) throws ParseException {
+    public ResponseEntity<GastosRequestDTO> atualizarGastos(GastosRequestDTO gastosRequestDTO, Long id) throws ParseException {
         GastosModel gastosModel = gastosRepository.getReferenceById(id);
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM");
-        Date dataInicio = dateFormat.parse(gastosDTO.getDataInicio());
-        Date dataFim = new Date();
-        if (gastosDTO.getParcela() != null) {
-            String[] parcelaParts = gastosDTO.getParcela().split("/");
-            int mesesRestantes = Integer.parseInt(parcelaParts[1]) - Integer.parseInt(parcelaParts[0]);
-            dataFim.setMonth(dataFim.getMonth() + mesesRestantes);
-        } else {
-            dataFim = null;
+        Date dataInicio = null;
+        Date dataFim = null;
+        if (gastosRequestDTO.getDataInicio() != null) {
+            dataInicio = dateFormat.parse(gastosRequestDTO.getDataInicio());
         }
-        gastosModel.setNome(gastosDTO.getNome());
-        gastosModel.setDescricao(gastosDTO.getDescricao());
-        gastosModel.setValor(gastosDTO.getValor());
+        if (gastosRequestDTO.getDataFim() != null) {
+            dataFim = dateFormat.parse(gastosRequestDTO.getDataFim());
+        }
+        gastosModel.setNome(gastosRequestDTO.getNome());
+        gastosModel.setDescricao(gastosRequestDTO.getDescricao());
+        gastosModel.setValor(gastosRequestDTO.getValor());
         gastosModel.setGrupoGastos(
-                grupoGastosRepository.findById(gastosDTO.getGrupoGastosId()).
+                grupoGastosRepository.findById(gastosRequestDTO.getGrupoGastosId()).
                         orElseThrow(
                                 () -> new RuntimeException("Grupo de gastos não encontrado")
                         )
         );
         gastosModel.setDataFim(dataFim);
         gastosModel.setDataInicio(dataInicio);
-        GastosDTO response = new GastosDTO(gastosRepository.save(gastosModel));
+        GastosRequestDTO response = new GastosRequestDTO(gastosRepository.save(gastosModel));
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<GastosCompletoDTO> listarGastosPorId(Long id) {
+    public ResponseEntity<GastosResponseDTO> listarGastosPorId(Long id) {
         GastosModel gastosModel = gastosRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("Gastos não encontrado")
         );
         GrupoGastosModel grupoGastosModel = grupoGastosRepository.findById(gastosModel.getGrupoGastos().getId()).orElseThrow(
                 () -> new RuntimeException("Grupo de gastos não encontrado")
         );
-        GastosCompletoDTO response = new GastosCompletoDTO(gastosModel, grupoGastosModel);
+        GastosResponseDTO response = new GastosResponseDTO(gastosModel, grupoGastosModel, null);
         return ResponseEntity.ok(response);
-    }
-
-    public static long monthsBetween(Date startDate, Date endDate) {
-        long retorno = 0;
-        if (startDate != null && endDate != null) {
-            retorno = ChronoUnit.MONTHS.between(convertToLocalDate(startDate), convertToLocalDate(endDate));
-        }
-        return retorno;
     }
 
     private static LocalDate convertToLocalDate(Date date) {
@@ -118,5 +109,29 @@ public class GastosService {
             retorno = dateFormat.format(gastosModel.getDataInicio());
         }
         return retorno;
+    }
+
+    public static String returnDataFim(GastosModel gastosModel) {
+        String retorno = "";
+        if (gastosModel.getDataFim() != null) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM");
+            retorno = dateFormat.format(gastosModel.getDataFim());
+        }
+        return retorno;
+    }
+
+    public String calcularParcela(Date dataInicio, Date dataFim, Date dataConsulta) {
+        if (dataInicio == null || dataFim == null || dataConsulta == null) {
+            return "0/0";
+        }
+
+        LocalDate inicio = convertToLocalDate(dataInicio);
+        LocalDate fim = convertToLocalDate(dataFim);
+        LocalDate consulta = convertToLocalDate(dataConsulta);
+
+        long totalMeses = ChronoUnit.MONTHS.between(inicio, fim) + 1;
+        long mesesPassados = ChronoUnit.MONTHS.between(inicio, consulta) + 1;
+
+        return mesesPassados + "/" + totalMeses;
     }
 }

@@ -1,8 +1,6 @@
 package com.br.controle.gastos.service;
 
-import com.br.controle.gastos.dto.GastosCompletoDTO;
 import com.br.controle.gastos.dto.GrupoGastosDTO;
-import com.br.controle.gastos.model.GastosModel;
 import com.br.controle.gastos.model.GrupoGastosModel;
 import com.br.controle.gastos.repository.GrupoGastosRepository;
 import org.springframework.beans.factory.annotation.Autowired;

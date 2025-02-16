@@ -1,32 +1,36 @@
 package com.br.controle.gastos.dto;
 
 import com.br.controle.gastos.model.GastosModel;
+import com.br.controle.gastos.model.GrupoGastosModel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.text.SimpleDateFormat;
+import static com.br.controle.gastos.service.GastosService.*;
 
-@Getter @Setter
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class GastosDTO {
+public class GastosResponseDTO {
     private Long id;
     private String nome;
     private String descricao;
     private double valor;
     private String parcela;
     private String dataInicio;
-    private Long grupoGastosId;
+    private String dataFim;
+    private GrupoGastosDTO grupoGastos;
 
-    public GastosDTO(GastosModel gastosModel) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+    public GastosResponseDTO(GastosModel gastosModel, GrupoGastosModel grupoGastosModel, String parcela) {
         this.id = gastosModel.getId();
         this.nome = gastosModel.getNome();
         this.descricao = gastosModel.getDescricao();
         this.valor = gastosModel.getValor();
-        this.grupoGastosId = gastosModel.getGrupoGastos().getId();
-        this.dataInicio = (gastosModel.getDataInicio() != null) ? dateFormat.format(gastosModel.getDataInicio()) : null;
+        this.parcela = parcela;
+        this.dataInicio = returnDataInicio(gastosModel);
+        this.dataFim = returnDataFim(gastosModel);
+        this.grupoGastos = new GrupoGastosDTO(grupoGastosModel);
     }
 }

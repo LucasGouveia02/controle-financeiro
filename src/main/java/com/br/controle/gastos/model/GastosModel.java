@@ -1,6 +1,6 @@
 package com.br.controle.gastos.model;
 
-import com.br.controle.gastos.dto.GastosDTO;
+import com.br.controle.gastos.dto.GastosRequestDTO;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -33,10 +33,10 @@ public class GastosModel {
     @JoinColumn(name = "grupo_gastos_id")
     private GrupoGastosModel grupoGastos;
 
-    public GastosModel(GastosDTO gastosDTO, GrupoGastosModel grupoGastos) {
-        this.nome = gastosDTO.getNome();
-        this.descricao = gastosDTO.getDescricao();
-        this.valor = gastosDTO.getValor();
+    public GastosModel(GastosRequestDTO gastosRequestDTO, GrupoGastosModel grupoGastos) {
+        this.nome = gastosRequestDTO.getNome();
+        this.descricao = gastosRequestDTO.getDescricao();
+        this.valor = gastosRequestDTO.getValor();
         this.grupoGastos = grupoGastos;
     }
 }

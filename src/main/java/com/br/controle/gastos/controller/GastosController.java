@@ -1,7 +1,7 @@
 package com.br.controle.gastos.controller;
 
-import com.br.controle.gastos.dto.GastosCompletoDTO;
-import com.br.controle.gastos.dto.GastosDTO;
+import com.br.controle.gastos.dto.GastosResponseDTO;
+import com.br.controle.gastos.dto.GastosRequestDTO;
 import com.br.controle.gastos.service.GastosService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,22 +19,22 @@ public class GastosController {
     private GastosService gastosService;
 
     @PostMapping("/cadastrar")
-    public ResponseEntity<GastosDTO> cadastrarGastos(@RequestBody GastosDTO gastosDTO) throws ParseException {
-        return gastosService.cadastrarGastos(gastosDTO);
+    public ResponseEntity<GastosRequestDTO> cadastrarGastos(@RequestBody GastosRequestDTO gastosRequestDTO) throws ParseException {
+        return gastosService.cadastrarGastos(gastosRequestDTO);
     }
 
     @GetMapping("/listar/{mesAno}")
-    public ResponseEntity<List<GastosCompletoDTO>> listarGastos(@PathVariable String mesAno) throws ParseException {
+    public ResponseEntity<List<GastosResponseDTO>> listarGastos(@PathVariable String mesAno) throws ParseException {
         return gastosService.listarGastos(mesAno);
     }
 
     @PutMapping("/atualizar/{id}")
-    public ResponseEntity<GastosDTO> atualizarGastos(@RequestBody GastosDTO gastosDTO, @PathVariable Long id) throws ParseException {
-        return gastosService.atualizarGastos(gastosDTO, id);
+    public ResponseEntity<GastosRequestDTO> atualizarGastos(@RequestBody GastosRequestDTO gastosRequestDTO, @PathVariable Long id) throws ParseException {
+        return gastosService.atualizarGastos(gastosRequestDTO, id);
     }
 
     @GetMapping("/listarPorId/{id}")
-    public ResponseEntity<GastosCompletoDTO> listarGastosPorId(@PathVariable Long id) {
+    public ResponseEntity<GastosResponseDTO> listarGastosPorId(@PathVariable Long id) {
         return gastosService.listarGastosPorId(id);
     }
 }
