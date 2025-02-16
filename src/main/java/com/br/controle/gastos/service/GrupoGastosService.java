@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class GrupoGastosService {
 
@@ -21,5 +24,14 @@ public class GrupoGastosService {
         grupoGastosModel = new GrupoGastosModel(dto);
         GrupoGastosDTO response = new GrupoGastosDTO(grupoGastosRepository.save(grupoGastosModel));
         return ResponseEntity.ok(response);
+    }
+
+    public ResponseEntity<List<GrupoGastosDTO>> listarGruposGastos() {
+        List<GrupoGastosModel> list = grupoGastosRepository.findAll();
+        List<GrupoGastosDTO> listDto = new ArrayList<>();
+        for (GrupoGastosModel gasto : list) {
+            listDto.add(new GrupoGastosDTO(gasto));
+        }
+        return ResponseEntity.ok(listDto);
     }
 }

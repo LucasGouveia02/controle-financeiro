@@ -4,13 +4,13 @@ import com.br.controle.gastos.dto.GrupoGastosDTO;
 import com.br.controle.gastos.service.GrupoGastosService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/grupo-gastos")
+@CrossOrigin("*")
 public class GrupoGastosController {
 
     @Autowired
@@ -19,5 +19,10 @@ public class GrupoGastosController {
     @PostMapping("/cadastrar")
     public ResponseEntity<GrupoGastosDTO> cadastrarGrupoGastos(@RequestBody GrupoGastosDTO dto) {
         return grupoGastosService.cadastrarGrupoGastos(dto);
+    }
+
+    @GetMapping("/listar")
+    public ResponseEntity<List<GrupoGastosDTO>> listarGruposGastos() {
+        return grupoGastosService.listarGruposGastos();
     }
 }
