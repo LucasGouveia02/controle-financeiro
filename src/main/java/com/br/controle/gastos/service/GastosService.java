@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -27,7 +30,7 @@ public class GastosService {
 
     public ResponseEntity<GastosDTO> cadastrarGastos(GastosDTO gastosDTO) throws ParseException {
         GrupoGastosModel grupoGastosModel = grupoGastosRepository.getReferenceById(gastosDTO.getGrupoGastosId());
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MM-yyyy");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM");
         Date dataInicio = dateFormat.parse(gastosDTO.getDataInicio());
         Date dataFim = new Date();
         if (gastosDTO.getParcela() != null) {
@@ -58,7 +61,7 @@ public class GastosService {
 
     public ResponseEntity<GastosDTO> atualizarGastos(GastosDTO gastosDTO, Long id) throws ParseException {
         GastosModel gastosModel = gastosRepository.getReferenceById(id);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MM-yyyy");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM");
         Date dataInicio = dateFormat.parse(gastosDTO.getDataInicio());
         Date dataFim = new Date();
         if (gastosDTO.getParcela() != null) {
@@ -83,11 +86,37 @@ public class GastosService {
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<GastosDTO> listarGastosPorId(Long id) {
+    public ResponseEntity<GastosCompletoDTO> listarGastosPorId(Long id) {
         GastosModel gastosModel = gastosRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("Gastos não encontrado")
         );
-        GastosDTO response = new GastosDTO(gastosModel);
+        GrupoGastosModel grupoGastosModel = grupoGastosRepository.findById(gastosModel.getGrupoGastos().getId()).orElseThrow(
+                () -> new RuntimeException("Grupo de gastos não encontrado")
+        );
+        GastosCompletoDTO response = new GastosCompletoDTO(gastosModel, grupoGastosModel);
         return ResponseEntity.ok(response);
+    }
+
+    public static long monthsBetween(Date startDate, Date endDate) {
+        long retorno = 0;
+        if (startDate != null && endDate != null) {
+            retorno = ChronoUnit.MONTHS.between(convertToLocalDate(startDate), convertToLocalDate(endDate));
+        }
+        return retorno;
+    }
+
+    private static LocalDate convertToLocalDate(Date date) {
+        return date.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+    }
+
+    public static String returnDataInicio(GastosModel gastosModel) {
+        String retorno = "";
+        if (gastosModel.getDataInicio() != null) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM");
+            retorno = dateFormat.format(gastosModel.getDataInicio());
+        }
+        return retorno;
     }
 }

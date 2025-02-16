@@ -34,7 +34,7 @@ public class GastosController {
     }
 
     @GetMapping("/listarPorId/{id}")
-    public ResponseEntity<GastosDTO> listarGastosPorId(@PathVariable Long id) {
+    public ResponseEntity<GastosCompletoDTO> listarGastosPorId(@PathVariable Long id) {
         return gastosService.listarGastosPorId(id);
     }
 }
